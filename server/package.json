@@ -9,7 +9,10 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test:database": "node tests/database.test.js",
-    "test:password": "node tests/password.test.js"
+    "test:password": "node tests/password.test.js",
+    "test:ioc-validator": "node tests/iocValidator.test.js",
+    "test:normalization": "node tests/normalization.test.js",
+    "test:deduplication": "node tests/deduplication.test.js"
   },
   "keywords": [],
   "author": "",
