@@ -12,7 +12,18 @@
     "test:password": "node tests/password.test.js",
     "test:ioc-validator": "node tests/iocValidator.test.js",
     "test:normalization": "node tests/normalization.test.js",
-    "test:deduplication": "node tests/deduplication.test.js"
+    "test:deduplication": "node tests/deduplication.test.js",
+    "test:ioc-crud": "node tests/iocCrud.test.js",
+    "test:base-feed": "node tests/baseFeed.test.js",
+    "test:otx-feed": "node tests/otxFeed.test.js",
+    "test:urlhaus-feed": "node tests/urlhausFeed.test.js",
+    "test:malwarebazaar-feed": "node tests/malwareBazaarFeed.test.js",
+    "test:cisa-kev-feed": "node tests/cisaKEVFeed.test.js",
+    "test:ingestion": "node tests/ingestion.test.js",
+    "test:multi-source": "node tests/multiSourceIngestion.test.js",
+    "test:duplicate-source": "node tests/duplicateSource.test.js",
+    "test:feed-scheduler": "node tests/feedScheduler.test.js",
+    "test:e2e-ingestion": "node tests/endToEndIngestion.test.js"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +36,7 @@
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.10.1",
+    "node-cron": "^4.6.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
