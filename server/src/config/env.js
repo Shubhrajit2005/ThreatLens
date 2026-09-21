@@ -10,6 +10,8 @@ const env = {
 
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1d",
+
+  ipinfoToken: process.env.IPINFO_TOKEN,
 };
 
 export default env;

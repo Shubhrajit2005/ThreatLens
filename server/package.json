@@ -23,7 +23,13 @@
     "test:multi-source": "node tests/multiSourceIngestion.test.js",
     "test:duplicate-source": "node tests/duplicateSource.test.js",
     "test:feed-scheduler": "node tests/feedScheduler.test.js",
-    "test:e2e-ingestion": "node tests/endToEndIngestion.test.js"
+    "test:e2e-ingestion": "node tests/endToEndIngestion.test.js",
+    "test:enrichment": "node tests/enrichment.test.js",
+    "test:enrichment-persistence": "node tests/enrichmentPersistence.test.js",
+    "test:ingestion-enrichment": "node tests/ingestionEnrichment.test.js",
+    "test:enrichment-failure": "node tests/enrichmentFailure.test.js",
+    "test:ip-bogon": "node tests/ipEnrichmentBogon.test.js",
+    "test:ip-error": "node tests/ipEnrichmentError.test.js"
   },
   "keywords": [],
   "author": "",

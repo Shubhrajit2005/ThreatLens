@@ -4,6 +4,7 @@ import {
   deduplicateIOC,
   createIOCIfNotExists,
 } from "./deduplicationService.js";
+import enrichIOC from "./enrichmentService.js";
 
 export const ingestIOCs = async (rawIOCs) => {
   if (!Array.isArray(rawIOCs)) {
@@ -42,7 +43,7 @@ export const ingestIOCs = async (rawIOCs) => {
         continue;
       }
 
-      await createIOCIfNotExists({
+      const createResult = await createIOCIfNotExists({
         value: value.trim(),
         normalizedValue,
         type,
@@ -51,11 +52,28 @@ export const ingestIOCs = async (rawIOCs) => {
         sources: source ? [source] : [],
       });
 
-      results.created++;
+      if (createResult.created) {
+        try {
+          const enrichment = await enrichIOC({
+            value: value.trim(),
+            type,
+          });
+
+          createResult.ioc.enrichment = enrichment;
+
+          await createResult.ioc.save();
+
+          console.log(`Enrichment completed for IOC: ${value}`);
+        } catch (error) {
+          console.error(`Enrichment failed for IOC: ${value}`, error.message);
+        }
+
+        results.created++;
+      }
     } catch (error) {
       console.error(
         `Failed to ingest IOC: ${rawIOC?.value || "unknown"}`,
-        error.message
+        error.message,
       );
     }
   }

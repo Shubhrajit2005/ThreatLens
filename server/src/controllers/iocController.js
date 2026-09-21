@@ -1,6 +1,7 @@
 import IOC from "../models/IOC.js";
 import { normalizeIOC } from "../services/normalizationService.js";
 import { validateIOC } from "../utils/iocValidator.js";
+import enrichIOC from "../services/enrichmentService.js";
 
 export const createIOC = async (req, res, next) => {
   try {
@@ -37,13 +38,22 @@ export const createIOC = async (req, res, next) => {
       });
     }
 
-    const ioc = await IOC.create({
-      value: value.trim(),
-      normalizedValue,
-      type,
-      confidence: confidence ?? 0,
-      tags: tags ?? [],
-    });
+const ioc = await IOC.create({
+  value: value.trim(),
+  normalizedValue,
+  type,
+  confidence: confidence ?? 0,
+  tags: tags ?? [],
+});
+
+const enrichment = await enrichIOC({
+  value: ioc.value,
+  type: ioc.type,
+});
+
+ioc.enrichment = enrichment;
+
+await ioc.save();
 
     res.status(201).json({
       success: true,
