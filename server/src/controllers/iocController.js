@@ -2,6 +2,9 @@ import IOC from "../models/IOC.js";
 import { normalizeIOC } from "../services/normalizationService.js";
 import { validateIOC } from "../utils/iocValidator.js";
 import enrichIOC from "../services/enrichmentService.js";
+import calculateRiskScore, {
+  getRiskLevel,
+} from "../services/riskScoringService.js";
 
 export const createIOC = async (req, res, next) => {
   try {
@@ -38,11 +41,23 @@ export const createIOC = async (req, res, next) => {
       });
     }
 
+const riskScore = calculateRiskScore({
+  confidence: confidence ?? 0,
+  sourceReliability: 0,
+  recency: 0,
+  sourceCount: 0,
+  severity: 0,
+});
+
 const ioc = await IOC.create({
   value: value.trim(),
   normalizedValue,
   type,
   confidence: confidence ?? 0,
+  risk: {
+    score: riskScore,
+    level: getRiskLevel(riskScore),
+  },
   tags: tags ?? [],
 });
 
@@ -114,6 +129,19 @@ export const updateIOC = async (req, res, next) => {
 
     if (confidence !== undefined) {
       ioc.confidence = confidence;
+
+      const sourceCount = ioc.sources?.length ?? 0;
+
+      const riskScore = calculateRiskScore({
+        confidence,
+        sourceReliability: 0,
+        recency: 0,
+        sourceCount,
+        severity: 0,
+      });
+
+      ioc.risk.score = riskScore;
+      ioc.risk.level = getRiskLevel(riskScore);
     }
 
     if (tags !== undefined) {

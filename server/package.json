@@ -29,7 +29,8 @@
     "test:ingestion-enrichment": "node tests/ingestionEnrichment.test.js",
     "test:enrichment-failure": "node tests/enrichmentFailure.test.js",
     "test:ip-bogon": "node tests/ipEnrichmentBogon.test.js",
-    "test:ip-error": "node tests/ipEnrichmentError.test.js"
+    "test:ip-error": "node tests/ipEnrichmentError.test.js",
+    "test:risk-scoring": "node tests/riskScoring.test.js"
   },
   "keywords": [],
   "author": "",

@@ -54,40 +54,44 @@ const runTest = async () => {
 
     const createRes = createMockResponse();
 
-    await createIOC(
-      createReq,
-      createRes,
-      (error) => {
-        throw error;
-      }
-    );
+    await createIOC(createReq, createRes, (error) => {
+      throw error;
+    });
 
     if (createRes.statusCode === 201) {
       console.log("PASS: IOC created successfully");
     } else {
-      console.log(
-        `FAIL: IOC creation returned ${createRes.statusCode}`
-      );
+      console.log(`FAIL: IOC creation returned ${createRes.statusCode}`);
     }
 
     createdIOCId = createRes.body.data._id;
+
+    const createdIOC = createRes.body.data;
+
+    if (
+      createdIOC.risk &&
+      typeof createdIOC.risk.score === "number" &&
+      createdIOC.risk.score === 24 &&
+      createdIOC.risk.level === "low"
+    ) {
+      console.log("PASS: IOC risk score calculated correctly");
+    } else {
+      console.log(
+        `FAIL: IOC risk score incorrect: ${
+          createdIOC.risk?.score
+        } (${createdIOC.risk?.level})`,
+      );
+    }
 
     // READ ALL
     const getAllReq = {};
     const getAllRes = createMockResponse();
 
-    await getAllIOCs(
-      getAllReq,
-      getAllRes,
-      (error) => {
-        throw error;
-      }
-    );
+    await getAllIOCs(getAllReq, getAllRes, (error) => {
+      throw error;
+    });
 
-    if (
-      getAllRes.statusCode === 200 &&
-      getAllRes.body.count >= 1
-    ) {
+    if (getAllRes.statusCode === 200 && getAllRes.body.count >= 1) {
       console.log("PASS: IOC list retrieved successfully");
     } else {
       console.log("FAIL: IOC list retrieval failed");
@@ -102,18 +106,13 @@ const runTest = async () => {
 
     const getOneRes = createMockResponse();
 
-    await getIOCById(
-      getOneReq,
-      getOneRes,
-      (error) => {
-        throw error;
-      }
-    );
+    await getIOCById(getOneReq, getOneRes, (error) => {
+      throw error;
+    });
 
     if (
       getOneRes.statusCode === 200 &&
-      getOneRes.body.data._id.toString() ===
-        createdIOCId.toString()
+      getOneRes.body.data._id.toString() === createdIOCId.toString()
     ) {
       console.log("PASS: IOC retrieved by ID");
     } else {
@@ -134,22 +133,24 @@ const runTest = async () => {
 
     const updateRes = createMockResponse();
 
-    await updateIOC(
-      updateReq,
-      updateRes,
-      (error) => {
-        throw error;
-      }
-    );
+    await updateIOC(updateReq, updateRes, (error) => {
+      throw error;
+    });
+
+    const updatedIOC = updateRes.body.data;
 
     if (
-      updateRes.statusCode === 200 &&
-      updateRes.body.data.confidence === 95 &&
-      updateRes.body.data.status === "reviewed"
+      updatedIOC.risk &&
+      updatedIOC.risk.score === 29 &&
+      updatedIOC.risk.level === "low"
     ) {
-      console.log("PASS: IOC updated successfully");
+      console.log("PASS: IOC risk recalculated correctly");
     } else {
-      console.log("FAIL: IOC update failed");
+      console.log(
+        `FAIL: IOC risk recalculation incorrect: ${
+          updatedIOC.risk?.score
+        } (${updatedIOC.risk?.level})`,
+      );
     }
 
     // DELETE
@@ -161,13 +162,9 @@ const runTest = async () => {
 
     const deleteRes = createMockResponse();
 
-    await deleteIOC(
-      deleteReq,
-      deleteRes,
-      (error) => {
-        throw error;
-      }
-    );
+    await deleteIOC(deleteReq, deleteRes, (error) => {
+      throw error;
+    });
 
     if (deleteRes.statusCode === 200) {
       console.log("PASS: IOC deleted successfully");

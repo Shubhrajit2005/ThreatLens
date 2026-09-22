@@ -5,6 +5,12 @@ import {
   createIOCIfNotExists,
 } from "./deduplicationService.js";
 import enrichIOC from "./enrichmentService.js";
+import calculateRiskScore, {
+  getRiskLevel,
+  getSourceReliability,
+  calculateRecencyScore,
+  getSeverityScore,
+} from "./riskScoringService.js";
 
 export const ingestIOCs = async (rawIOCs) => {
   if (!Array.isArray(rawIOCs)) {
@@ -20,7 +26,7 @@ export const ingestIOCs = async (rawIOCs) => {
 
   for (const rawIOC of rawIOCs) {
     try {
-      const { value, type, source, confidence, tags } = rawIOC;
+      const { value, type, source, confidence, severity, tags } = rawIOC;
 
       const isValid = validateIOC(value, type);
 
@@ -43,11 +49,27 @@ export const ingestIOCs = async (rawIOCs) => {
         continue;
       }
 
+      const sourceReliability = getSourceReliability(source?.feedName);
+
+      const recency = calculateRecencyScore(source?.lastSeen);
+
+      const riskScore = calculateRiskScore({
+        confidence: confidence ?? 0,
+        sourceReliability,
+        recency,
+        sourceCount: source ? 1 : 0,
+        severity: getSeverityScore(severity),
+      });
+
       const createResult = await createIOCIfNotExists({
         value: value.trim(),
         normalizedValue,
         type,
         confidence: confidence ?? 0,
+        risk: {
+          score: riskScore,
+          level: getRiskLevel(riskScore),
+        },
         tags: tags ?? [],
         sources: source ? [source] : [],
       });

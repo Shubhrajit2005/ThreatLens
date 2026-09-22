@@ -23,10 +23,12 @@ const runTest = async () => {
         confidence: 80,
         tags: ["ingestion-test"],
         source: {
-          feedName: "TestFeed",
+          feedName: "OTX",
           sourceReference: "test-001",
           confidence: 80,
+          lastSeen: new Date(),
         },
+        severity: "high",
       },
       {
         value: "192.0.2.50",
@@ -91,6 +93,22 @@ const runTest = async () => {
       console.log("FAIL: Ingested IOCs not found in MongoDB");
     }
 
+    if (
+      domainIOC?.risk?.score === 69 &&
+      domainIOC?.risk?.level === "high" &&
+      ipIOC?.risk &&
+      typeof ipIOC.risk.score === "number" &&
+      typeof ipIOC.risk.level === "string"
+    ) {
+      console.log("PASS: Severity affects ingestion risk score");
+    } else {
+      console.log(
+        `FAIL: Recency risk score incorrect: ${
+          domainIOC?.risk?.score
+        } (${domainIOC?.risk?.level})`,
+      );
+    }
+
     // Cleanup
     await IOC.deleteMany({
       tags: "ingestion-test",
@@ -102,10 +120,7 @@ const runTest = async () => {
 
     await mongoose.connection.close();
   } catch (error) {
-    console.error(
-      "INGESTION SERVICE TEST FAILED:",
-      error.message
-    );
+    console.error("INGESTION SERVICE TEST FAILED:", error.message);
 
     await mongoose.connection.close();
     process.exit(1);
