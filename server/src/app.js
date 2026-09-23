@@ -4,6 +4,8 @@ import helmet from "helmet";
 import env from "./config/env.js";
 import authRoutes from "./routes/authRoutes.js";
 import iocRoutes from "./routes/iocRoutes.js";
+import { apiRateLimiter } from "./middleware/rateLimiter.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -19,7 +21,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 
-app.use("/api/iocs", iocRoutes);
+app.use("/api/iocs", apiRateLimiter, iocRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({
@@ -28,5 +30,7 @@ app.get("/api/health", (req, res) => {
     environment: env.nodeEnv,
   });
 });
+
+app.use(errorHandler);
 
 export default app;

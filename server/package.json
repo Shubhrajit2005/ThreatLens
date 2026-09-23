@@ -30,7 +30,9 @@
     "test:enrichment-failure": "node tests/enrichmentFailure.test.js",
     "test:ip-bogon": "node tests/ipEnrichmentBogon.test.js",
     "test:ip-error": "node tests/ipEnrichmentError.test.js",
-    "test:risk-scoring": "node tests/riskScoring.test.js"
+    "test:risk-scoring": "node tests/riskScoring.test.js",
+    "test:auth": "node tests/auth.test.js",
+    "test:validation": "node tests/validation.test.js"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +42,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.10.1",

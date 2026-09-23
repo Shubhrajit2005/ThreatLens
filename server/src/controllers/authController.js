@@ -4,7 +4,7 @@ import { generateToken } from "../utils/jwt.js";
 
 export const register = async (req, res, next) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, email, password } = req.body;
 
     const existingUser = await User.findOne({
       $or: [{ username }, { email }],
@@ -23,7 +23,7 @@ export const register = async (req, res, next) => {
       username,
       email,
       passwordHash,
-      role: role || "viewer",
+      role: "viewer",
     });
 
     res.status(201).json({

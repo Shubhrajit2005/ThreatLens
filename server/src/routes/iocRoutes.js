@@ -1,5 +1,4 @@
 import express from "express";
-
 import {
   createIOC,
   getAllIOCs,
@@ -7,9 +6,11 @@ import {
   updateIOC,
   deleteIOC,
 } from "../controllers/iocController.js";
-
 import authenticate from "../middleware/auth.js";
 import authorize from "../middleware/rbac.js";
+import validate from "../middleware/validation.js";
+import { createIOCSchema } from "../utils/iocValidation.js";
+import { updateIOCSchema } from "../utils/iocUpdateValidation.js";
 
 const router = express.Router();
 
@@ -33,6 +34,7 @@ router.post(
   "/",
   authenticate,
   authorize("admin", "analyst"),
+  validate(createIOCSchema),
   createIOC
 );
 
@@ -41,6 +43,7 @@ router.patch(
   "/:id",
   authenticate,
   authorize("admin", "analyst"),
+  validate(updateIOCSchema),
   updateIOC
 );
 
