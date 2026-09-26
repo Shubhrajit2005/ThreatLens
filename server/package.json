@@ -32,7 +32,10 @@
     "test:ip-error": "node tests/ipEnrichmentError.test.js",
     "test:risk-scoring": "node tests/riskScoring.test.js",
     "test:auth": "node tests/auth.test.js",
-    "test:validation": "node tests/validation.test.js"
+    "test:validation": "node tests/validation.test.js",
+    "test:api-security": "node tests/api-security.test.js",
+    "test:rate-limit": "node tests/rate-limit.test.js",
+    "test:api-rate-limit": "node tests/api-rate-limit.test.js"
   },
   "keywords": [],
   "author": "",

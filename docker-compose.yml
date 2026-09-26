@@ -5,6 +5,12 @@ services:
     restart: unless-stopped
     volumes:
       - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   server:
     build:
@@ -20,7 +26,8 @@ services:
       CLIENT_URL: http://localhost:5173
       JWT_EXPIRES_IN: 1d
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     ports:
       - "5000:5000"
 
