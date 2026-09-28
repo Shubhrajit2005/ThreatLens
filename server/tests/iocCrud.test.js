@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
-
 import connectDatabase from "../src/config/database.js";
 import IOC from "../src/models/IOC.js";
-
 import {
   createIOC,
   getAllIOCs,
@@ -10,6 +8,7 @@ import {
   updateIOC,
   deleteIOC,
 } from "../src/controllers/iocController.js";
+import AuditLog from "../src/models/AuditLog.js";
 
 const createMockResponse = () => {
   return {
@@ -31,6 +30,9 @@ const createMockResponse = () => {
 const runTest = async () => {
   let createdIOCId;
 
+  // Mock authenticated analyst user
+  const testUserId = new mongoose.Types.ObjectId();
+
   try {
     await connectDatabase();
 
@@ -42,14 +44,26 @@ const runTest = async () => {
       type: "domain",
     });
 
+    // Cleanup previous audit logs for this test user
+    await AuditLog.deleteMany({
+      userId: testUserId,
+    });
+
+    // =========================================================
     // CREATE
+    // =========================================================
+
     const createReq = {
+      user: {
+        userId: testUserId,
+      },
       body: {
         value: " CRUD-TEST.Example.COM ",
         type: "domain",
         confidence: 80,
         tags: ["test", "crud"],
       },
+      ip: "127.0.0.1",
     };
 
     const createRes = createMockResponse();
@@ -83,7 +97,46 @@ const runTest = async () => {
       );
     }
 
+    // =========================================================
+    // CREATE AUDIT LOG TEST
+    // =========================================================
+
+    const createAudit = await AuditLog.findOne({
+      userId: testUserId,
+      action: "ioc_created",
+      resourceType: "ioc",
+      resourceId: createdIOCId,
+    });
+
+    if (createAudit) {
+      console.log("PASS: IOC creation audit log created");
+    } else {
+      console.log("FAIL: IOC creation audit log not found");
+    }
+
+    if (
+      createAudit &&
+      createAudit.userId.toString() === testUserId.toString()
+    ) {
+      console.log("PASS: IOC creation audit user is correct");
+    } else {
+      console.log("FAIL: IOC creation audit user is incorrect");
+    }
+
+    if (
+      createAudit &&
+      createAudit.details.type === createdIOC.type &&
+      createAudit.details.value === createdIOC.value
+    ) {
+      console.log("PASS: IOC creation audit details are correct");
+    } else {
+      console.log("FAIL: IOC creation audit details are incorrect");
+    }
+
+    // =========================================================
     // READ ALL
+    // =========================================================
+
     const getAllReq = {};
     const getAllRes = createMockResponse();
 
@@ -97,7 +150,10 @@ const runTest = async () => {
       console.log("FAIL: IOC list retrieval failed");
     }
 
+    // =========================================================
     // READ BY ID
+    // =========================================================
+
     const getOneReq = {
       params: {
         id: createdIOCId,
@@ -119,8 +175,14 @@ const runTest = async () => {
       console.log("FAIL: IOC retrieval by ID failed");
     }
 
+    // =========================================================
     // UPDATE
+    // =========================================================
+
     const updateReq = {
+      user: {
+        userId: testUserId,
+      },
       params: {
         id: createdIOCId,
       },
@@ -129,6 +191,7 @@ const runTest = async () => {
         tags: ["test", "updated"],
         status: "reviewed",
       },
+      ip: "127.0.0.1",
     };
 
     const updateRes = createMockResponse();
@@ -153,11 +216,62 @@ const runTest = async () => {
       );
     }
 
+    if (updatedIOC.confidence === 95 && updatedIOC.status === "reviewed") {
+      console.log("PASS: IOC fields updated correctly");
+    } else {
+      console.log("FAIL: IOC fields were not updated correctly");
+    }
+
+    // =========================================================
+    // UPDATE AUDIT LOG TEST
+    // =========================================================
+
+    const updateAudit = await AuditLog.findOne({
+      userId: testUserId,
+      action: "ioc_updated",
+      resourceType: "ioc",
+      resourceId: createdIOCId,
+    });
+
+    if (updateAudit) {
+      console.log("PASS: IOC update audit log created");
+    } else {
+      console.log("FAIL: IOC update audit log not found");
+    }
+
+    if (
+      updateAudit &&
+      updateAudit.userId.toString() === testUserId.toString()
+    ) {
+      console.log("PASS: IOC update audit user is correct");
+    } else {
+      console.log("FAIL: IOC update audit user is incorrect");
+    }
+
+    if (
+      updateAudit &&
+      updateAudit.details.type === "domain" &&
+      updateAudit.details.value === "CRUD-TEST.Example.COM" &&
+      updateAudit.details.confidence === 95 &&
+      updateAudit.details.status === "reviewed"
+    ) {
+      console.log("PASS: IOC update audit details are correct");
+    } else {
+      console.log("FAIL: IOC update audit details are incorrect");
+    }
+
+    // =========================================================
     // DELETE
+    // =========================================================
+
     const deleteReq = {
+      user: {
+        userId: testUserId,
+      },
       params: {
         id: createdIOCId,
       },
+      ip: "127.0.0.1",
     };
 
     const deleteRes = createMockResponse();
@@ -172,7 +286,46 @@ const runTest = async () => {
       console.log("FAIL: IOC deletion failed");
     }
 
-    // Verify deletion
+    // =========================================================
+    // DELETE AUDIT LOG TEST
+    // =========================================================
+
+    const deleteAudit = await AuditLog.findOne({
+      userId: testUserId,
+      action: "ioc_deleted",
+      resourceType: "ioc",
+      resourceId: createdIOCId,
+    });
+
+    if (deleteAudit) {
+      console.log("PASS: IOC deletion audit log created");
+    } else {
+      console.log("FAIL: IOC deletion audit log not found");
+    }
+
+    if (
+      deleteAudit &&
+      deleteAudit.userId.toString() === testUserId.toString()
+    ) {
+      console.log("PASS: IOC deletion audit user is correct");
+    } else {
+      console.log("FAIL: IOC deletion audit user is incorrect");
+    }
+
+    if (
+      deleteAudit &&
+      deleteAudit.details.type === "domain" &&
+      deleteAudit.details.value === "CRUD-TEST.Example.COM"
+    ) {
+      console.log("PASS: IOC deletion audit details are correct");
+    } else {
+      console.log("FAIL: IOC deletion audit details are incorrect");
+    }
+
+    // =========================================================
+    // VERIFY DELETION
+    // =========================================================
+
     const deletedIOC = await IOC.findById(createdIOCId);
 
     if (!deletedIOC) {
@@ -180,6 +333,16 @@ const runTest = async () => {
     } else {
       console.log("FAIL: IOC still exists after deletion");
     }
+
+    // =========================================================
+    // CLEANUP
+    // =========================================================
+
+    await AuditLog.deleteMany({
+      userId: testUserId,
+    });
+
+    console.log("PASS: IOC audit test data cleaned up");
 
     console.log("\nIOC CRUD TEST COMPLETED");
 
@@ -190,6 +353,10 @@ const runTest = async () => {
     if (createdIOCId) {
       await IOC.findByIdAndDelete(createdIOCId);
     }
+
+    await AuditLog.deleteMany({
+      userId: testUserId,
+    });
 
     await mongoose.connection.close();
     process.exit(1);

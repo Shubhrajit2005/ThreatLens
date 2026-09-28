@@ -5,6 +5,7 @@ import enrichIOC from "../services/enrichmentService.js";
 import calculateRiskScore, {
   getRiskLevel,
 } from "../services/riskScoringService.js";
+import createAuditLog from "../services/auditLogService.js";
 
 export const createIOC = async (req, res, next) => {
   try {
@@ -41,34 +42,50 @@ export const createIOC = async (req, res, next) => {
       });
     }
 
-const riskScore = calculateRiskScore({
-  confidence: confidence ?? 0,
-  sourceReliability: 0,
-  recency: 0,
-  sourceCount: 0,
-  severity: 0,
-});
+    const riskScore = calculateRiskScore({
+      confidence: confidence ?? 0,
+      sourceReliability: 0,
+      recency: 0,
+      sourceCount: 0,
+      severity: 0,
+    });
 
-const ioc = await IOC.create({
-  value: value.trim(),
-  normalizedValue,
-  type,
-  confidence: confidence ?? 0,
-  risk: {
-    score: riskScore,
-    level: getRiskLevel(riskScore),
-  },
-  tags: tags ?? [],
-});
+    const ioc = await IOC.create({
+      value: value.trim(),
+      normalizedValue,
+      type,
+      confidence: confidence ?? 0,
+      risk: {
+        score: riskScore,
+        level: getRiskLevel(riskScore),
+      },
+      tags: tags ?? [],
+    });
 
-const enrichment = await enrichIOC({
-  value: ioc.value,
-  type: ioc.type,
-});
+    const enrichment = await enrichIOC({
+      value: ioc.value,
+      type: ioc.type,
+    });
 
-ioc.enrichment = enrichment;
+    ioc.enrichment = enrichment;
 
-await ioc.save();
+    await ioc.save();
+
+    // --------------------------------------------------
+    // Audit log: IOC created
+    // --------------------------------------------------
+
+    await createAuditLog({
+      userId: req.user.userId,
+      action: "ioc_created",
+      resourceType: "ioc",
+      resourceId: ioc._id,
+      ipAddress: req.ip,
+      details: {
+        type: ioc.type,
+        value: ioc.value,
+      },
+    });
 
     res.status(201).json({
       success: true,
@@ -154,6 +171,24 @@ export const updateIOC = async (req, res, next) => {
 
     await ioc.save();
 
+    // --------------------------------------------------
+    // Audit log: IOC updated
+    // --------------------------------------------------
+
+    await createAuditLog({
+      userId: req.user.userId,
+      action: "ioc_updated",
+      resourceType: "ioc",
+      resourceId: ioc._id,
+      ipAddress: req.ip,
+      details: {
+        type: ioc.type,
+        value: ioc.value,
+        confidence: ioc.confidence,
+        status: ioc.status,
+      },
+    });
+
     res.status(200).json({
       success: true,
       message: "IOC updated successfully",
@@ -166,7 +201,7 @@ export const updateIOC = async (req, res, next) => {
 
 export const deleteIOC = async (req, res, next) => {
   try {
-    const ioc = await IOC.findByIdAndDelete(req.params.id);
+    const ioc = await IOC.findById(req.params.id);
 
     if (!ioc) {
       return res.status(404).json({
@@ -174,6 +209,29 @@ export const deleteIOC = async (req, res, next) => {
         message: "IOC not found",
       });
     }
+
+    // Store the required audit information before deletion
+    const iocId = ioc._id;
+    const iocType = ioc.type;
+    const iocValue = ioc.value;
+
+    await IOC.findByIdAndDelete(req.params.id);
+
+    // --------------------------------------------------
+    // Audit log: IOC deleted
+    // --------------------------------------------------
+
+    await createAuditLog({
+      userId: req.user.userId,
+      action: "ioc_deleted",
+      resourceType: "ioc",
+      resourceId: iocId,
+      ipAddress: req.ip,
+      details: {
+        type: iocType,
+        value: iocValue,
+      },
+    });
 
     res.status(200).json({
       success: true,

@@ -1,5 +1,6 @@
 import Investigation from "../models/Investigation.js";
 import IOC from "../models/IOC.js";
+import createAuditLog from "../services/auditLogService.js";
 
 export const createInvestigation = async (req, res, next) => {
   try {
@@ -19,6 +20,19 @@ export const createInvestigation = async (req, res, next) => {
       iocId,
       analystId: req.user.userId,
       priority: priority || "medium",
+    });
+
+    await createAuditLog({
+      userId: req.user.userId,
+      action: "investigation_created",
+      resourceType: "investigation",
+      resourceId: investigation._id,
+      ipAddress: req.ip,
+      details: {
+        title: investigation.title,
+        iocId: investigation.iocId,
+        priority: investigation.priority,
+      },
     });
 
     res.status(201).json({
@@ -95,6 +109,17 @@ export const updateInvestigation = async (req, res, next) => {
     }
 
     await investigation.save();
+    await createAuditLog({
+      userId: req.user.userId,
+      action: "investigation_updated",
+      resourceType: "investigation",
+      resourceId: investigation._id,
+      ipAddress: req.ip,
+      details: {
+        priority: investigation.priority,
+        status: investigation.status,
+      },
+    });
 
     res.status(200).json({
       success: true,
@@ -126,6 +151,17 @@ export const addInvestigationNote = async (req, res, next) => {
     });
 
     await investigation.save();
+
+    await createAuditLog({
+      userId: req.user.userId,
+      action: "investigation_note_added",
+      resourceType: "investigation",
+      resourceId: investigation._id,
+      ipAddress: req.ip,
+      details: {
+        noteText: text,
+      },
+    });
 
     res.status(201).json({
       success: true,
