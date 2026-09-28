@@ -35,7 +35,8 @@
     "test:validation": "node tests/validation.test.js",
     "test:api-security": "node tests/api-security.test.js",
     "test:rate-limit": "node tests/rate-limit.test.js",
-    "test:api-rate-limit": "node tests/api-rate-limit.test.js"
+    "test:api-rate-limit": "node tests/api-rate-limit.test.js",
+    "test:dashboard": "node tests/dashboard.test.js"
   },
   "keywords": [],
   "author": "",

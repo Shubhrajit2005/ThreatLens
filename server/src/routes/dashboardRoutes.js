@@ -1,5 +1,5 @@
 import express from "express";
-import { getDashboardStats } from "../controllers/dashboardController.js";
+import { getDashboardStats,getDashboardOverview } from "../controllers/dashboardController.js";
 import authenticate from "../middleware/auth.js";
 import authorize from "../middleware/rbac.js";
 
@@ -81,4 +81,28 @@ router.get(
   getDashboardStats
 );
 
+/**
+ * @swagger
+ * /api/dashboard/overview:
+ *   get:
+ *     summary: Get dashboard overview
+ *     description: Retrieve dashboard-ready threat intelligence statistics, feed statistics, recent IOCs, and recent investigations.
+ *     tags:
+ *       - Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard overview retrieved successfully
+ *       401:
+ *         description: Authentication required
+ *       403:
+ *         description: Insufficient permissions
+ */
+router.get(
+  "/overview",
+  authenticate,
+  authorize("admin", "analyst", "viewer"),
+  getDashboardOverview
+);
 export default router;
