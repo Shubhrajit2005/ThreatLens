@@ -37,7 +37,8 @@
     "test:rate-limit": "node tests/rate-limit.test.js",
     "test:api-rate-limit": "node tests/api-rate-limit.test.js",
     "test:dashboard": "node tests/dashboard.test.js",
-    "test:feeds": "node tests/feed.test.js"
+    "test:feeds": "node tests/feed.test.js",
+    "test:investigation": "node tests/investigation.test.js"
   },
   "keywords": [],
   "author": "",

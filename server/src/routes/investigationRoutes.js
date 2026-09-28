@@ -16,6 +16,7 @@ import {
   createInvestigationSchema,
   updateInvestigationSchema,
   addInvestigationNoteSchema,
+  investigationIdSchema,
 } from "../middleware/investigationValidation.js";
 
 const router = express.Router();
@@ -130,6 +131,7 @@ router.get(
   "/:id",
   authenticate,
   authorize("admin", "analyst", "viewer"),
+  validate(investigationIdSchema, "params"),
   getInvestigationById
 );
 
@@ -189,6 +191,7 @@ router.patch(
   "/:id",
   authenticate,
   authorize("admin", "analyst"),
+  validate(investigationIdSchema, "params"),
   validate(updateInvestigationSchema),
   updateInvestigation
 );
@@ -239,6 +242,7 @@ router.post(
   "/:id/notes",
   authenticate,
   authorize("admin", "analyst"),
+  validate(investigationIdSchema, "params"),
   validate(addInvestigationNoteSchema),
   addInvestigationNote
 );

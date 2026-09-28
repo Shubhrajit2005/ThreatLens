@@ -47,3 +47,9 @@ export const addInvestigationNoteSchema = z.object({
     .min(1, "Note text is required")
     .max(2000, "Note must not exceed 2000 characters"),
 });
+
+export const investigationIdSchema = z.object({
+  id: z
+    .string()
+    .regex(/^[0-9a-fA-F]{24}$/, "Invalid investigation ID"),
+});
