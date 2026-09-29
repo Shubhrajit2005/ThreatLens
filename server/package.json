@@ -39,7 +39,8 @@
     "test:dashboard": "node tests/dashboard.test.js",
     "test:feeds": "node tests/feed.test.js",
     "test:investigation": "node tests/investigation.test.js",
-    "test:audit-log": "node tests/auditLog.test.js"
+    "test:audit-log": "node tests/auditLog.test.js",
+    "test:audit-log-api": "node tests/auditLogApi.test.js"
   },
   "keywords": [],
   "author": "",

@@ -11,6 +11,7 @@ import calculateRiskScore, {
   calculateRecencyScore,
   getSeverityScore,
 } from "./riskScoringService.js";
+import createAuditLog from "./auditLogService.js";
 
 export const ingestIOCs = async (rawIOCs) => {
   if (!Array.isArray(rawIOCs)) {
