@@ -12,3 +12,5 @@ server/dist/
 
 docker.env
 docker.env.*
+
+server/tests/createAdmin.js
