@@ -30,54 +30,74 @@ function Login() {
   };
 
   return (
-    <div>
-      <h1>ThreatLens</h1>
+    <div className="login-page">
+      <div className="login-card">
+        <div className="login-header">
+          <h1>ThreatLens</h1>
 
-      <p>
-        Threat Intelligence Aggregation & IOC Investigation Platform
-      </p>
-
-      <h2>Login</h2>
-
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="identifier">
-            Username or Email
-          </label>
-
-          <input
-            id="identifier"
-            type="text"
-            value={identifier}
-            onChange={(event) =>
-              setIdentifier(event.target.value)
-            }
-            required
-          />
+          <p>
+            Threat Intelligence Aggregation & IOC
+            Investigation Platform
+          </p>
         </div>
 
-        <div>
-          <label htmlFor="password">
-            Password
-          </label>
+        <form
+          className="login-form"
+          onSubmit={handleSubmit}
+        >
+          <div className="form-group">
+            <label htmlFor="identifier">
+              Username or Email
+            </label>
 
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) =>
-              setPassword(event.target.value)
-            }
-            required
-          />
+            <input
+              id="identifier"
+              type="text"
+              value={identifier}
+              onChange={(event) =>
+                setIdentifier(event.target.value)
+              }
+              placeholder="Enter username or email"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">
+              Password
+            </label>
+
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(event) =>
+                setPassword(event.target.value)
+              }
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="login-error">
+              {error}
+            </div>
+          )}
+
+          <button
+            className="login-button"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        <div className="login-footer">
+          ThreatLens Security Platform
         </div>
-
-        {error && <p>{error}</p>}
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+      </div>
     </div>
   );
 }
