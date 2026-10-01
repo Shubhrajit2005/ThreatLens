@@ -4,6 +4,7 @@ import api from "../services/api";
 
 function IOCExplorer() {
   const [iocs, setIOCs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -25,6 +26,17 @@ function IOCExplorer() {
 
     loadIOCs();
   }, []);
+
+  const filteredIOCs = iocs.filter((ioc) => {
+    const search = searchTerm.toLowerCase();
+
+    return (
+      ioc.value?.toLowerCase().includes(search) ||
+      ioc.type?.toLowerCase().includes(search) ||
+      ioc.status?.toLowerCase().includes(search) ||
+      ioc.risk?.level?.toLowerCase().includes(search)
+    );
+  });
 
   if (loading) {
     return (
@@ -56,13 +68,32 @@ function IOCExplorer() {
       </div>
 
       <section className="dashboard-card">
-        <h2>Indicators of Compromise</h2>
+        <div className="explorer-header">
+          <div>
+            <h2>Indicators of Compromise</h2>
 
-        {iocs.length === 0 ? (
-          <p>No IOCs found.</p>
+            <p>
+              {filteredIOCs.length} of {iocs.length} IOCs
+              displayed
+            </p>
+          </div>
+
+          <input
+            className="search-input"
+            type="text"
+            placeholder="Search IOC, type, status, or risk..."
+            value={searchTerm}
+            onChange={(event) =>
+              setSearchTerm(event.target.value)
+            }
+          />
+        </div>
+
+        {filteredIOCs.length === 0 ? (
+          <p>No matching IOCs found.</p>
         ) : (
           <div>
-            {iocs.map((ioc) => (
+            {filteredIOCs.map((ioc) => (
               <div
                 key={ioc._id}
                 className="distribution-item"
