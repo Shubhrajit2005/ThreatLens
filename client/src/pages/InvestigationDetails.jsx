@@ -16,7 +16,7 @@ function InvestigationDetails() {
           `/investigations/${id}`
         );
 
-        setInvestigation(response.data.data);
+        setInvestigation(response.data.investigation);
       } catch (err) {
         setError(
           err.response?.data?.message ||
